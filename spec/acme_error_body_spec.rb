@@ -18,6 +18,8 @@ RSpec.describe 'Full problem document (acme_error_body) support' do
     it 'exposes the full problem document when provided' do
       error = Acme::Client::Error.new('rate limited', acme_error_body: problem_document)
       expect(error.acme_error_body).to eq(problem_document)
+      expect(error.problem).to be_a(Acme::Client::Problem)
+      expect(error.problem.to_h).to eq(problem_document)
     end
 
     it 'defaults to nil when not provided' do
@@ -39,11 +41,13 @@ RSpec.describe 'Full problem document (acme_error_body) support' do
     it 'provides access to status from the problem document' do
       error = Acme::Client::Error.new('error', acme_error_body: problem_document)
       expect(error.acme_error_body['status']).to eq(429)
+      expect(error.status).to eq(429)
     end
 
     it 'provides access to instance URL from the problem document' do
       error = Acme::Client::Error.new('error', acme_error_body: problem_document)
       expect(error.acme_error_body['instance']).to eq('https://ca.example.com/acme/error/abc123')
+      expect(error.problem.instance).to eq('https://ca.example.com/acme/error/abc123')
     end
   end
 
@@ -51,6 +55,7 @@ RSpec.describe 'Full problem document (acme_error_body) support' do
     it 'works on ServerError subclasses' do
       error = Acme::Client::Error::Unauthorized.new('unauthorized', acme_error_body: problem_document)
       expect(error.acme_error_body).to eq(problem_document)
+      expect(error.problem.code).to eq('rateLimited')
     end
 
     it 'works on RateLimited with positional args preserved' do
@@ -78,6 +83,7 @@ RSpec.describe 'Full problem document (acme_error_body) support' do
         error = error_class.new('test', acme_error_body: problem_document)
         expect(error.acme_error_body).to eq(problem_document),
           "#{error_class} did not accept acme_error_body correctly"
+        expect(error.problem).to be_a(Acme::Client::Problem)
       end
     end
   end

@@ -33,6 +33,8 @@ RSpec.describe 'Typed errors from challenge error fields' do
       err = challenge.typed_error
       expect(err).to be_a(Acme::Client::Error::Dns)
       expect(err.message).to eq('DNS problem: SERVFAIL looking up A for example.com')
+      expect(err.problem).to be_a(Acme::Client::Problem)
+      expect(err.problem.code).to eq('dns')
     end
 
     it 'returns a typed Unauthorized error' do
@@ -42,6 +44,8 @@ RSpec.describe 'Typed errors from challenge error fields' do
       })
       err = challenge.typed_error
       expect(err).to be_a(Acme::Client::Error::Unauthorized)
+      expect(err.problem).to be_a(Acme::Client::Problem)
+      expect(err.problem.code).to eq('unauthorized')
     end
 
     it 'returns a typed Connection error' do
@@ -88,6 +92,8 @@ RSpec.describe 'Typed errors from challenge error fields' do
       err = challenge.typed_error
       expect(err).to be_a(Acme::Client::Error)
       expect(err.message).to eq('Something new happened')
+      expect(err.problem.code).to eq('unknownFutureThing')
+      expect(err.problem).not_to be_standard
     end
 
     it 'uses "Unknown error" when detail is missing' do
@@ -97,6 +103,7 @@ RSpec.describe 'Typed errors from challenge error fields' do
       err = challenge.typed_error
       expect(err).to be_a(Acme::Client::Error::Dns)
       expect(err.message).to eq('Unknown error')
+      expect(err.problem.code).to eq('dns')
     end
 
     it 'does not alter the raw error hash' do

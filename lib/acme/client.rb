@@ -14,6 +14,7 @@ module Acme; end
 class Acme::Client; end
 
 require 'acme/client/version'
+require 'acme/client/problem'
 require 'acme/client/http_client'
 require 'acme/client/certificate_request'
 require 'acme/client/self_sign_certificate'

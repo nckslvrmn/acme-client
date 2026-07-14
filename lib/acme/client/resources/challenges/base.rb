@@ -31,10 +31,11 @@ class Acme::Client::Resources::Challenges::Base
   def typed_error
     return nil unless error
 
-    error_type = error['type']
-    error_detail = error['detail'] || 'Unknown error'
+    problem = Acme::Client::Problem.from(error)
+    error_type = problem&.type
+    error_detail = problem&.detail || 'Unknown error'
     error_class = Acme::Client::Error::ACME_ERRORS.fetch(error_type, Acme::Client::Error)
-    error_class.new(error_detail)
+    error_class.new(error_detail, problem: problem)
   end
 
   def to_h

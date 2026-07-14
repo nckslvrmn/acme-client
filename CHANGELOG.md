@@ -1,3 +1,9 @@
+## `2.0.33`
+
+* Add `Acme::Client::Problem` for structured RFC 7807 / RFC 8555 ACME problem documents
+* Expose `Acme::Client::Error#problem` and problem field accessors while keeping `#acme_error_body` behavior
+* Add typed error mappings for all currently registered IANA ACME error types and verify them against IANA's CSV registry
+
 ## `2.0.32`
 
 * Fix `valid_ip_address?` method definition. Was mistakenly defined on Object instead of `Acme::Client::CertificateRequest`

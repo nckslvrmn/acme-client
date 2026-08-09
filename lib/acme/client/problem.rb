@@ -38,7 +38,8 @@ class Acme::Client::Problem
     'autoRenewalRevocationNotSupported' => 'A request to revoke an auto-renewal Order has been received',
     'unknownDelegation' => 'An unknown configuration is listed in the delegation attribute of the order request',
     'onionCAARequired' => 'The CA only supports checking the CAA for Hidden Services in-band, but the client has not provided an in-band CAA',
-    'alreadyReplaced' => 'The request specified a predecessor certificate that has already been marked as replaced'
+    'alreadyReplaced' => 'The request specified a predecessor certificate that has already been marked as replaced',
+    'badAttestationStatement' => 'The attestation statement is unacceptable (e.g. not signed by an attestation authority trusted by the CA)'
   }.freeze
 
   def self.from(value)

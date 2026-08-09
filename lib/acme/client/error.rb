@@ -97,6 +97,7 @@ class Acme::Client::Error < StandardError
   class AutoRenewalRevocationNotSupported < ServerError; end
   class UnknownDelegation < ServerError; end
   class OnionCAARequired < ServerError; end
+  class BadAttestationStatement < ServerError; end
 
   ACME_ERRORS = {
     'urn:ietf:params:acme:error:alreadyReplaced' => AlreadyReplaced,
@@ -129,6 +130,7 @@ class Acme::Client::Error < StandardError
     'urn:ietf:params:acme:error:autoRenewalCancellationInvalid' => AutoRenewalCancellationInvalid,
     'urn:ietf:params:acme:error:autoRenewalRevocationNotSupported' => AutoRenewalRevocationNotSupported,
     'urn:ietf:params:acme:error:unknownDelegation' => UnknownDelegation,
-    'urn:ietf:params:acme:error:onionCAARequired' => OnionCAARequired
+    'urn:ietf:params:acme:error:onionCAARequired' => OnionCAARequired,
+    'urn:ietf:params:acme:error:badAttestationStatement' => BadAttestationStatement,
   }
 end

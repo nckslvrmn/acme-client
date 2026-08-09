@@ -1,5 +1,7 @@
+require 'acme/client/problem'
+
 class Acme::Client::Error < StandardError
-  attr_reader :retry_after, :retry_after_time, :subproblems, :acme_error_body
+  attr_reader :retry_after, :retry_after_time, :subproblems, :acme_error_body, :problem
 
   Subproblem = Struct.new(:type, :detail, :identifier, keyword_init: true) do
     def to_h
@@ -7,12 +9,13 @@ class Acme::Client::Error < StandardError
     end
   end
 
-  def initialize(message = nil, retry_after: nil, acme_error_body: nil, subproblems: nil)
+  def initialize(message = nil, retry_after: nil, acme_error_body: nil, subproblems: nil, problem: nil)
     super(message)
     @retry_after_time = Acme::Client::Util.parse_retry_after(retry_after)
     @retry_after = @retry_after_time ? [(@retry_after_time - Time.now).ceil, 0].max : nil
-    @acme_error_body = acme_error_body
-    @subproblems = parse_subproblems(subproblems)
+    @problem = Acme::Client::Problem.from(problem || acme_error_body)
+    @acme_error_body = acme_error_body || @problem&.to_h
+    @subproblems = parse_subproblems(subproblems || @problem&.raw_subproblems)
   end
 
   private
@@ -30,6 +33,26 @@ class Acme::Client::Error < StandardError
   end
 
   public
+
+  def type
+    problem&.type
+  end
+
+  def code
+    problem&.code
+  end
+
+  def detail
+    problem&.detail || message
+  end
+
+  def status
+    problem&.status
+  end
+
+  def identifier
+    problem&.identifier
+  end
 
   class Timeout < Acme::Client::Error; end
 
@@ -63,10 +86,17 @@ class Acme::Client::Error < StandardError
   class UserActionRequired < ServerError; end
   class BadRevocationReason < ServerError; end
   class Caa < ServerError; end
+  class Compound < ServerError; end
   class Dns < ServerError; end
   class Connection < ServerError; end
   class Tls < ServerError; end
   class IncorrectResponse < ServerError; end
+  class AutoRenewalCanceled < ServerError; end
+  class AutoRenewalExpired < ServerError; end
+  class AutoRenewalCancellationInvalid < ServerError; end
+  class AutoRenewalRevocationNotSupported < ServerError; end
+  class UnknownDelegation < ServerError; end
+  class OnionCAARequired < ServerError; end
 
   ACME_ERRORS = {
     'urn:ietf:params:acme:error:alreadyReplaced' => AlreadyReplaced,
@@ -89,9 +119,16 @@ class Acme::Client::Error < StandardError
     'urn:ietf:params:acme:error:userActionRequired' => UserActionRequired,
     'urn:ietf:params:acme:error:badRevocationReason' => BadRevocationReason,
     'urn:ietf:params:acme:error:caa' => Caa,
+    'urn:ietf:params:acme:error:compound' => Compound,
     'urn:ietf:params:acme:error:dns' => Dns,
     'urn:ietf:params:acme:error:connection' => Connection,
     'urn:ietf:params:acme:error:tls' => Tls,
-    'urn:ietf:params:acme:error:incorrectResponse' => IncorrectResponse
+    'urn:ietf:params:acme:error:incorrectResponse' => IncorrectResponse,
+    'urn:ietf:params:acme:error:autoRenewalCanceled' => AutoRenewalCanceled,
+    'urn:ietf:params:acme:error:autoRenewalExpired' => AutoRenewalExpired,
+    'urn:ietf:params:acme:error:autoRenewalCancellationInvalid' => AutoRenewalCancellationInvalid,
+    'urn:ietf:params:acme:error:autoRenewalRevocationNotSupported' => AutoRenewalRevocationNotSupported,
+    'urn:ietf:params:acme:error:unknownDelegation' => UnknownDelegation,
+    'urn:ietf:params:acme:error:onionCAARequired' => OnionCAARequired
   }
 end
